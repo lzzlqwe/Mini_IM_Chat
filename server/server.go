@@ -64,6 +64,29 @@ func (this *Server) Handler(conn net.Conn) {
 	//广播当前用户的上线信息
 	this.BroadCast(user, "already online")
 
+	//接受客户端发送的消息
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := conn.Read(buf)
+			if n == 0 { //客户端断开连接，用户下线
+				this.BroadCast(user, "offline")
+				return
+			}
+
+			if err != nil {
+				fmt.Println("conn Read err:", err)
+				return
+			}
+
+			//提取用户发送的消息(去除'\n')
+			//msg := string(buf[:n-1])
+			msg := string(buf[:])
+			//将得到的消息进行广播
+			this.BroadCast(user, msg)
+		}
+	}()
+
 	//当前handle阻塞
 	select {}
 }
