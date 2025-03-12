@@ -75,7 +75,7 @@ func (this *Server) Handler(conn net.Conn) {
 
 			//提取用户发送的消息(去除'\n')
 			//msg := string(buf[:n-1])
-			msg := string(buf[:])
+			msg := string(buf[:n])
 			//针对message进行处理
 			user.DoMeaage(msg)
 		}
