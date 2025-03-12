@@ -1,7 +1,6 @@
 package server
 
 import (
-	. "Mini_IM_Chat/user"
 	"fmt"
 	"net"
 	"sync"
@@ -13,7 +12,7 @@ type Server struct {
 
 	//在线用户链表
 	OnlineMap map[string]*User
-	maplock   sync.RWMutex //map锁
+	MapLock   sync.RWMutex //map锁
 
 	//消息广播的channel
 	Message chan string
@@ -35,11 +34,11 @@ func (this *Server) ListenMessager() {
 	for {
 		msg := <-this.Message
 
-		this.maplock.Lock()
+		this.MapLock.Lock()
 		for _, cli := range this.OnlineMap {
 			cli.Channel <- msg
 		}
-		this.maplock.Unlock()
+		this.MapLock.Unlock()
 	}
 }
 
@@ -54,15 +53,10 @@ func (this *Server) Handler(conn net.Conn) {
 	//当前连接的业务
 	//fmt.Println("连接建立成功！")
 
-	user := NewUser(conn)
+	user := NewUser(conn, this)
 
-	//用户上线，将用户写入到OnlineMap中
-	this.maplock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.maplock.Unlock()
-
-	//广播当前用户的上线信息
-	this.BroadCast(user, "already online")
+	//用户上线
+	user.Online()
 
 	//接受客户端发送的消息
 	go func() {
@@ -70,7 +64,7 @@ func (this *Server) Handler(conn net.Conn) {
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 { //客户端断开连接，用户下线
-				this.BroadCast(user, "offline")
+				user.Offline()
 				return
 			}
 
@@ -82,8 +76,8 @@ func (this *Server) Handler(conn net.Conn) {
 			//提取用户发送的消息(去除'\n')
 			//msg := string(buf[:n-1])
 			msg := string(buf[:])
-			//将得到的消息进行广播
-			this.BroadCast(user, msg)
+			//针对message进行处理
+			user.DoMeaage(msg)
 		}
 	}()
 
