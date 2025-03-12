@@ -2,6 +2,7 @@ package server
 
 import (
 	"net"
+	"strings"
 )
 
 type User struct {
@@ -55,6 +56,24 @@ func (this *User) DoMeaage(msg string) {
 			this.SendMessage(onlineMsg)
 		}
 		this.server.MapLock.Unlock()
+	} else if len(msg) > 7 && msg[:7] == "rename|" { //修改当前用户名
+		//消息格式 rename|jack
+		newName := strings.Split(msg, "|")[1]
+
+		//判断name是否以及存在
+		_, ok := this.server.OnlineMap[newName]
+		if ok {
+			this.SendMessage("this name already exist")
+		} else {
+			this.server.MapLock.Lock()
+			delete(this.server.OnlineMap, this.Name)
+			this.Name = newName
+			this.server.OnlineMap[newName] = this
+			this.server.MapLock.Unlock()
+
+			this.SendMessage("you have changed your name to " + newName)
+		}
+
 	} else {
 		//将得到的消息进行广播
 		this.server.BroadCast(this, msg)
