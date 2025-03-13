@@ -57,6 +57,29 @@ func (this *Client) DealResponse() {
 	io.Copy(os.Stdout, this.conn)
 }
 
+// 用户公聊
+func (this *Client) PublicChat() {
+	fmt.Println(">>>>>>>>>>>请输入聊天内容，exit退出")
+	var chatMsg string
+	fmt.Scanln(&chatMsg)
+
+	for chatMsg != "exit" {
+		//消息不为空则发送
+		if len(chatMsg) != 0 {
+			//发送给服务器
+			//sendMsg := chatMsg + "\n"
+			_, err := this.conn.Write([]byte(chatMsg))
+			if err != nil {
+				fmt.Println("conn Write err:", err)
+				break
+			}
+		}
+		chatMsg = ""
+		fmt.Println(">>>>>>>>>>>请输入聊天内容，exit退出")
+		fmt.Scanln(&chatMsg)
+	}
+}
+
 // 客户端主业务
 func (this *Client) Run() {
 	for this.flag != 0 {
@@ -65,7 +88,7 @@ func (this *Client) Run() {
 		switch this.flag {
 		case 1:
 			//公聊模式
-			fmt.Println("公聊模式连接...")
+			this.PublicChat()
 			break
 		case 2:
 			//私聊模式
