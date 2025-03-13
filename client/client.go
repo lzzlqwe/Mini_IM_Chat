@@ -1,7 +1,6 @@
-package main
+package client
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -102,7 +101,7 @@ func (this *Client) Run() {
 	}
 }
 
-func newClient(ServerIp string, ServerPort int) *Client {
+func NewClient(ServerIp string, ServerPort int) *Client {
 	//创建客户端对象
 	client := &Client{
 		ServerIp:   ServerIp,
@@ -120,31 +119,4 @@ func newClient(ServerIp string, ServerPort int) *Client {
 	client.conn = conn
 	//返回客户端对象
 	return client
-}
-
-var serverIp string
-var serverPort int
-
-func init() {
-	flag.StringVar(&serverIp, "ip", "127.0.0.1", "Set the server IP address (default is 127.0.0.1)")
-	flag.IntVar(&serverPort, "port", 8888, "Set the server port (default is 8888)")
-}
-
-func main() {
-	//命令行解析
-	flag.Parse()
-
-	client := newClient(serverIp, serverPort)
-	if client == nil {
-		fmt.Println(">>>>>>>>>>>连接服务器失败")
-		return
-	}
-
-	//单独开启一个goroutine去处理server的回执信息
-	go client.DealResponse()
-
-	fmt.Println(">>>>>>>>>>>连接服务器成功")
-
-	//启动客户端业务
-	client.Run()
 }
