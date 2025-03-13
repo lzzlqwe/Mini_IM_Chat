@@ -17,7 +17,7 @@ type User struct {
 func (this *User) ListenMessage() {
 	for {
 		msg := <-this.Channel
-		this.conn.Write([]byte(msg + "\r \n"))
+		this.conn.Write([]byte(msg + "\r\n"))
 	}
 }
 
@@ -44,7 +44,7 @@ func (this *User) Offline() {
 
 // 给当前用户对应的客户端发送消息
 func (this *User) SendMessage(msg string) {
-	this.conn.Write([]byte(msg + "\r \n"))
+	this.conn.Write([]byte(msg + "\r\n"))
 }
 
 // 用户处理消息的业务

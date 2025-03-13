@@ -45,7 +45,7 @@ func (this *Server) ListenMessager() {
 
 // 广播消息的方法
 func (this *Server) BroadCast(user *User, msg string) {
-	sendMsg := " [" + user.Addr + "]" + user.Name + ":" + msg
+	sendMsg := "[" + user.Addr + "]" + user.Name + ":" + msg
 
 	this.Message <- sendMsg
 }
